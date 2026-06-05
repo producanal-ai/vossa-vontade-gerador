@@ -313,23 +313,23 @@
 
       <!-- Caixa de instrução pós-cópia -->
       <div id="magnificCopyBox" style="display:none; margin-top:14px; background:rgba(200,169,110,0.08); border:1px solid var(--gold); border-radius:var(--radius); padding:14px 16px;">
-        <p style="font-size:12px; font-weight:500; color:var(--gold); margin-bottom:10px; letter-spacing:0.08em; text-transform:uppercase;">✓ Prompt copiado! Agora faça isso:</p>
+        <p style="font-size:12px; font-weight:500; color:var(--gold); margin-bottom:10px; letter-spacing:0.08em; text-transform:uppercase;">✓ Claude.ai abriu em nova aba! Faça isso:</p>
         <div style="display:flex; flex-direction:column; gap:8px;">
           <div style="display:flex; gap:10px; align-items:flex-start;">
             <span style="width:20px; height:20px; border-radius:50%; background:var(--gold); color:var(--dark); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">1</span>
-            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">Volte para esta conversa no <strong style="color:var(--cream);">Claude.ai</strong></p>
+            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">Na nova aba do <strong style="color:var(--cream);">Claude.ai</strong>, clique no campo de mensagem</p>
           </div>
           <div style="display:flex; gap:10px; align-items:flex-start;">
             <span style="width:20px; height:20px; border-radius:50%; background:var(--gold); color:var(--dark); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">2</span>
-            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">Cole o texto copiado no campo de mensagem</p>
+            <p style="font-size:12px; color:var(--text-light); line-height:1.6;"><strong style="color:var(--cream);">Cole o prompt</strong> (Ctrl+V) — já está copiado!</p>
           </div>
           <div style="display:flex; gap:10px; align-items:flex-start;">
             <span style="width:20px; height:20px; border-radius:50%; background:var(--gold); color:var(--dark); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">3</span>
-            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">Envie também a <strong style="color:var(--cream);">foto do produto</strong> junto com a mensagem</p>
+            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">Anexe a <strong style="color:var(--cream);">foto do produto</strong> clicando no 📎</p>
           </div>
           <div style="display:flex; gap:10px; align-items:flex-start;">
             <span style="width:20px; height:20px; border-radius:50%; background:var(--gold); color:var(--dark); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">4</span>
-            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">O Claude dispara no Magnific automaticamente ✨</p>
+            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">Clique em <strong style="color:var(--cream);">Enviar</strong> — o Claude dispara no Magnific! ✨</p>
           </div>
         </div>
       </div>
@@ -722,12 +722,11 @@ MODO: ${modoLabel}
 PROMPT:
 ${promptParaUsar}
 
-⚠️ Use a foto do produto desta conversa como referência tipo "product" no Magnific. Fidelidade total ao produto — apenas o cenário ao redor pode ser criado pela IA.`;
+⚠️ Use a foto do produto que vou anexar como referência tipo "product" no Magnific. Fidelidade total ao produto — apenas o cenário ao redor pode ser criado pela IA.`;
 
     const btn = document.getElementById("btnMagnific");
-    const box = document.getElementById("magnificCopyBox");
 
-    // Tenta sendPrompt (artifact nativo do Claude)
+    // Tenta sendPrompt (quando aberto como artifact dentro do Claude)
     if (typeof sendPrompt === "function") {
       sendPrompt(mensagem);
       btn.querySelector("span").textContent = "✓ Enviado para o Claude!";
@@ -735,7 +734,7 @@ ${promptParaUsar}
       return;
     }
 
-    // Fallback: copiar para clipboard
+    // Estratégia: copiar mensagem + abrir Claude.ai em nova aba
     const copiar = (texto) => {
       return navigator.clipboard.writeText(texto).catch(() => {
         const ta = document.createElement("textarea");
@@ -751,11 +750,17 @@ ${promptParaUsar}
     };
 
     copiar(mensagem).then(() => {
-      // Mostrar caixa de instrução
-      box.style.display = "block";
-      btn.querySelector("span").textContent = "✓ Mensagem copiada!";
-      setTimeout(() => { btn.querySelector("span").textContent = "✨   Gerar no Magnific agora   ✨"; }, 3000);
-      box.scrollIntoView({ behavior: "smooth", block: "center" });
+      btn.querySelector("span").textContent = "✓ Abrindo Claude.ai...";
+
+      // Mostrar overlay com instrução
+      document.getElementById("magnificCopyBox").style.display = "block";
+      document.getElementById("magnificCopyBox").scrollIntoView({ behavior: "smooth", block: "center" });
+
+      // Abrir Claude.ai em nova aba após 600ms
+      setTimeout(() => {
+        window.open("https://claude.ai/new", "_blank");
+        btn.querySelector("span").textContent = "✨   Gerar no Magnific agora   ✨";
+      }, 600);
     });
   }
 </script>
