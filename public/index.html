@@ -715,14 +715,12 @@ REGRAS OBRIGATÓRIAS:
     const modelLabel = modelNames[selectedModel] || selectedModel;
     const modoLabel = magnificMode === "video" ? "vídeo (Seedance 2.0)" : "imagem estática";
 
-    const mensagem = `GERAR NO MAGNIFIC — ${modelLabel}
+    const mensagem = `Use a ferramenta Magnific para gerar ${modoLabel === "vídeo (Seedance 2.0)" ? "um vídeo com Seedance 2.0" : "uma imagem"} com o prompt abaixo. A foto anexada é o produto — use como referência tipo "product" no Magnific. NÃO crie designs, mockups ou artifacts. APENAS chame a ferramenta Magnific agora.
+
 PRODUTO: ${title}
-MODO: ${modoLabel}
 
-PROMPT:
-${promptParaUsar}
-
-⚠️ Use a foto do produto que vou anexar como referência tipo "product" no Magnific. Fidelidade total ao produto — apenas o cenário ao redor pode ser criado pela IA.`;
+PROMPT PARA O MAGNIFIC:
+${promptParaUsar}`;
 
     const btn = document.getElementById("btnMagnific");
 
