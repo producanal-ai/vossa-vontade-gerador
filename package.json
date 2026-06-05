@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "Gerador de Prompts para Criativos - Vossa Vontade",
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   }
 }
