@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vossa Vontade · Gerador de Criativos</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C8A96E; --gold-light: #E8D5A3; --gold-dark: #8B6914;
+    --cream: #F7F3EC; --dark: #1A1710; --dark2: #2C2820; --dark3: #3D3830;
+    --text: #4A4540; --text-light: #8A8070;
+    --border: rgba(200,169,110,0.25); --border-strong: rgba(200,169,110,0.5);
+    --radius: 4px; --radius-lg: 12px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: "Jost", sans-serif; background: var(--dark); color: var(--cream); min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ""; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 20%, rgba(200,169,110,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(200,169,110,0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+  .cross-pattern { position: fixed; inset: 0; opacity: 0.025; background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(200,169,110,1) 39px, rgba(200,169,110,1) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(200,169,110,1) 39px, rgba(200,169,110,1) 40px); pointer-events: none; z-index: 0; }
+  .container { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header { text-align: center; padding: 48px 0 36px; position: relative; }
+  .logo-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 2px solid var(--gold); }
+  .logo-ornament { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .ornament-line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--gold)); }
+  .ornament-line.right { background: linear-gradient(to left, transparent, var(--gold)); }
+  .ornament-diamond { width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); }
+  h1 { font-family: "Cormorant Garamond", serif; font-size: 38px; font-weight: 300; letter-spacing: 0.12em; color: var(--cream); text-transform: uppercase; }
+  h1 span { color: var(--gold); }
+  .subtitle { font-size: 13px; font-weight: 300; letter-spacing: 0.18em; color: var(--text-light); text-transform: uppercase; margin-top: 8px; }
+  .step { margin-bottom: 36px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.5s ease forwards; }
+  .step:nth-child(1) { animation-delay: 0.1s; }
+  .step:nth-child(2) { animation-delay: 0.2s; }
+  .step:nth-child(3) { animation-delay: 0.3s; }
+  .step:nth-child(4) { animation-delay: 0.4s; }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  .step-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .step-number { width: 32px; height: 32px; border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: "Cormorant Garamond", serif; font-size: 16px; color: var(--gold); flex-shrink: 0; }
+  .step-title { font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+  .models-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 480px) { .models-grid { grid-template-columns: 1fr; } }
+  .model-card { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 18px; cursor: pointer; transition: all 0.25s ease; background: rgba(255,255,255,0.02); position: relative; overflow: hidden; }
+  .model-card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(200,169,110,0.08) 0%, transparent 70%); opacity: 0; transition: opacity 0.3s; }
+  .model-card:hover { border-color: var(--border-strong); }
+  .model-card:hover::before { opacity: 1; }
+  .model-card.selected { border-color: var(--gold); background: rgba(200,169,110,0.06); }
+  .model-card.selected::before { opacity: 1; }
+  .model-icon { width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; font-size: 22px; background: rgba(200,169,110,0.05); transition: border-color 0.25s; }
+  .model-card.selected .model-icon { border-color: var(--gold); }
+  .model-name { font-family: "Cormorant Garamond", serif; font-size: 18px; font-weight: 400; color: var(--cream); margin-bottom: 8px; }
+  .model-desc { font-size: 12px; font-weight: 300; color: var(--text-light); line-height: 1.7; margin-bottom: 14px; }
+  .model-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 10px; letter-spacing: 0.08em; padding: 3px 8px; border: 1px solid var(--border); border-radius: 2px; color: var(--text-light); font-weight: 400; }
+  .model-card.selected .tag { border-color: rgba(200,169,110,0.35); color: var(--gold-light); }
+  .selected-badge { position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; background: var(--gold); border-radius: 50%; display: none; align-items: center; justify-content: center; }
+  .model-card.selected .selected-badge { display: flex; }
+  .selected-badge::after { content: "✓"; font-size: 11px; color: var(--dark); font-weight: 600; }
+  .upload-area { border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); padding: 40px 24px; text-align: center; cursor: pointer; transition: all 0.25s; background: rgba(255,255,255,0.01); position: relative; }
+  .upload-area:hover { border-color: var(--gold); background: rgba(200,169,110,0.04); }
+  .upload-area.has-image { padding: 0; border-style: solid; border-color: var(--gold); overflow: hidden; }
+  .upload-area img { width: 100%; max-height: 280px; object-fit: contain; display: block; background: rgba(0,0,0,0.3); }
+  .upload-overlay { position: absolute; inset: 0; background: rgba(26,23,16,0.7); display: none; align-items: center; justify-content: center; cursor: pointer; }
+  .upload-area.has-image:hover .upload-overlay { display: flex; }
+  .upload-icon { font-size: 36px; margin-bottom: 12px; }
+  .upload-label { font-size: 13px; color: var(--text-light); font-weight: 300; }
+  .upload-label strong { color: var(--gold); font-weight: 400; }
+  .upload-hint { font-size: 11px; color: var(--text-light); margin-top: 6px; opacity: 0.6; }
+  #fileInput { display: none; }
+  .field-group { display: flex; flex-direction: column; gap: 8px; }
+  label { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); font-weight: 400; }
+  input[type="text"], textarea { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; font-family: "Jost", sans-serif; font-size: 14px; font-weight: 300; color: var(--cream); width: 100%; transition: border-color 0.2s; outline: none; }
+  input[type="text"]:focus, textarea:focus { border-color: var(--gold); }
+  input[type="text"]::placeholder, textarea::placeholder { color: var(--text-light); opacity: 0.5; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+  .fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 540px) { .fields-row { grid-template-columns: 1fr; } }
+  .btn-generate { width: 100%; padding: 18px 32px; background: transparent; border: 1px solid var(--gold); border-radius: var(--radius); font-family: "Cormorant Garamond", serif; font-size: 20px; font-weight: 400; letter-spacing: 0.15em; color: var(--gold); cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; position: relative; overflow: hidden; }
+  .btn-generate::before { content: ""; position: absolute; inset: 0; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
+  .btn-generate:hover::before { transform: scaleX(1); }
+  .btn-generate:hover { color: var(--dark); }
+  .btn-generate span { position: relative; z-index: 1; }
+  .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-generate:disabled::before { display: none; }
+  .loading { display: none; text-align: center; padding: 32px; }
+  .loading.active { display: block; }
+  .loader-cross { display: inline-block; width: 32px; height: 32px; position: relative; margin-bottom: 16px; animation: rotateCross 2s linear infinite; }
+  @keyframes rotateCross { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .loader-cross::before, .loader-cross::after { content: ""; position: absolute; background: var(--gold); border-radius: 2px; }
+  .loader-cross::before { width: 4px; height: 32px; top: 0; left: 50%; transform: translateX(-50%); }
+  .loader-cross::after { width: 32px; height: 4px; top: 50%; left: 0; transform: translateY(-50%); }
+  .loading-text { font-size: 12px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; font-weight: 300; }
+  .result-box { display: none; border: 1px solid var(--gold); border-radius: var(--radius-lg); overflow: hidden; animation: fadeUp 0.4s ease forwards; }
+  .result-box.active { display: block; }
+  .result-header { background: rgba(200,169,110,0.1); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .result-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 400; display: flex; align-items: center; gap: 8px; }
+  .result-label::before { content: ""; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; display: inline-block; }
+  .result-model-badge { font-size: 11px; padding: 4px 12px; border: 1px solid var(--border-strong); border-radius: 2px; color: var(--text-light); font-weight: 300; letter-spacing: 0.08em; }
+  .result-content { padding: 24px; background: rgba(0,0,0,0.2); }
+  .result-section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .result-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .result-section-title { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; font-weight: 500; }
+  .result-section-body { font-size: 14px; font-weight: 300; line-height: 1.8; color: var(--cream); white-space: pre-wrap; }
+  .result-actions { padding: 16px 24px; border-top: 1px solid var(--border); background: rgba(200,169,110,0.04); display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-copy { padding: 10px 20px; background: transparent; border: 1px solid var(--border-strong); border-radius: var(--radius); font-family: "Jost", sans-serif; font-size: 12px; letter-spacing: 0.1em; color: var(--gold-light); cursor: pointer; transition: all 0.2s; font-weight: 400; text-transform: uppercase; }
+  .btn-copy:hover { background: rgba(200,169,110,0.1); border-color: var(--gold); }
+  .btn-copy.copied { border-color: #1D9E75; color: #5DCAA5; }
+  .btn-new { padding: 10px 20px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius); font-family: "Jost", sans-serif; font-size: 12px; letter-spacing: 0.1em; color: var(--text-light); cursor: pointer; transition: all 0.2s; font-weight: 400; text-transform: uppercase; }
+  .btn-new:hover { border-color: var(--border-strong); color: var(--cream); }
+  .magn-mode { padding: 8px 16px; font-size: 12px; font-family: "Jost", sans-serif; border: 1px solid var(--border); border-radius: var(--radius); background: transparent; color: var(--text-light); cursor: pointer; transition: all 0.2s; font-weight: 400; }
+  .magn-mode.active { border-color: var(--gold); color: var(--gold); background: rgba(200,169,110,0.08); }
+  .magn-mode:hover { border-color: var(--border-strong); color: var(--cream); }
+  .error-box { display: none; background: rgba(200,40,40,0.1); border: 1px solid rgba(200,40,40,0.3); border-radius: var(--radius); padding: 14px 18px; font-size: 13px; color: #F09595; font-weight: 300; }
+  .error-box.active { display: block; }
+  .divider { display: flex; align-items: center; gap: 16px; margin: 8px 0 24px; }
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-icon { color: var(--gold); opacity: 0.5; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="cross-pattern"></div>
+<div class="container">
+  <header>
+    <img class="logo-img" src="data:image/jpeg;base64,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" alt="Logo Vossa Vontade" />
+    <div class="logo-ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+    <h1>Vossa <span>Vontade</span></h1>
+    <p class="subtitle">Gerador de Prompts · Criativos Sagrados</p>
+  </header>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">I</div>
+      <p class="step-title">Escolha o modelo de anúncio</p>
+    </div>
+    <div class="models-grid" id="modelsGrid">
+      <div class="model-card" data-model="hero" onclick="selectModel(this)">
+        <div class="selected-badge"></div>
+        <div class="model-icon">🕯️</div>
+        <p class="model-name">Produto Hero</p>
+        <p class="model-desc">Foco no produto com fundo neutro e requintado. Preço em destaque, desconto visível e CTA direto para compra imediata.</p>
+        <div class="model-tags">
+          <span class="tag">Fundo claro</span>
+          <span class="tag">Desconto</span>
+          <span class="tag">Compra rápida</span>
+        </div>
+      </div>
+      <div class="model-card" data-model="devocao" onclick="selectModel(this)">
+        <div class="selected-badge"></div>
+        <div class="model-icon">✝️</div>
+        <p class="model-name">Devoção & Gatilho</p>
+        <p class="model-desc">Atmosfera sacra com fundo escuro. Frase devocional como headline, depoimento emocional e CTA de identidade espiritual.</p>
+        <div class="model-tags">
+          <span class="tag">Fundo escuro</span>
+          <span class="tag">Emocional</span>
+          <span class="tag">Fé & proteção</span>
+        </div>
+      </div>
+      <div class="model-card" data-model="carrossel" onclick="selectModel(this)">
+        <div class="selected-badge"></div>
+        <div class="model-icon">📿</div>
+        <p class="model-name">Carrossel de Prova</p>
+        <p class="model-desc">Três slides estratégicos: produto, avaliações reais de clientes e benefícios. Remove objeções e constrói confiança.</p>
+        <div class="model-tags">
+          <span class="tag">3 slides</span>
+          <span class="tag">Prova social</span>
+          <span class="tag">Confiança</span>
+        </div>
+      </div>
+      <div class="model-card" data-model="reels" onclick="selectModel(this)">
+        <div class="selected-badge"></div>
+        <div class="model-icon">🎬</div>
+        <p class="model-name">Reels / Vídeo</p>
+        <p class="model-desc">Roteiro cena a cena para Seedance, Veo 3, Kling e similares. Produto 100% fiel como imagem de referência — a IA cria o ambiente ao redor.</p>
+        <div class="model-tags">
+          <span class="tag">Seedance</span>
+          <span class="tag">Veo 3</span>
+          <span class="tag">Kling AI</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-icon">✦</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">II</div>
+      <p class="step-title">Foto e informações do produto</p>
+    </div>
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+      <div id="uploadPlaceholder">
+        <div class="upload-icon">📷</div>
+        <p class="upload-label"><strong>Clique para anexar a foto</strong> do seu produto</p>
+        <p class="upload-hint">JPG, PNG ou WEBP · Recomendado: fundo branco ou neutro</p>
+      </div>
+      <img id="previewImg" style="display:none;" alt="Produto selecionado" />
+      <div class="upload-overlay"><p style="font-size:13px; color:var(--gold); letter-spacing:0.1em;">Trocar foto</p></div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)">
+    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 14px;">
+      <div class="field-group">
+        <label for="productTitle">Nome do produto</label>
+        <input type="text" id="productTitle" placeholder="Ex: Terço de Nossa Senhora de Fátima folheado a ouro" />
+      </div>
+      <div class="fields-row">
+        <div class="field-group">
+          <label for="productPrice">Preço atual (R$)</label>
+          <input type="text" id="productPrice" placeholder="Ex: 89,90" />
+        </div>
+        <div class="field-group">
+          <label for="productOldPrice">Preço original (R$)</label>
+          <input type="text" id="productOldPrice" placeholder="Ex: 189,90" />
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="productDesc">Detalhe especial do produto (opcional)</label>
+        <input type="text" id="productDesc" placeholder="Ex: Prata 925, bênção papal, edição limitada..." />
+      </div>
+      <div class="field-group">
+        <label for="productSaint">Santo ou devoção relacionada</label>
+        <input type="text" id="productSaint" placeholder="Ex: Nossa Senhora Aparecida, São Bento..." />
+      </div>
+      <div class="field-group">
+        <label for="productOccasion">Ocasião ideal (opcional)</label>
+        <input type="text" id="productOccasion" placeholder="Ex: Dia das Mães, batizado, crisma, presente..." />
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-icon">✦</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">III</div>
+      <p class="step-title">Gerar prompt profissional</p>
+    </div>
+    <div style="border: 1px solid rgba(200,40,40,0.5); border-left: 3px solid #C82828; border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 18px; margin-bottom: 18px; background: rgba(200,40,40,0.06); display: flex; gap: 12px; align-items: flex-start;">
+      <span style="font-size:20px; flex-shrink:0; margin-top:1px;">🚨</span>
+      <div>
+        <p style="font-size:12px; font-weight:500; letter-spacing:0.08em; color:#F09595; margin-bottom:6px; text-transform:uppercase;">Fidelidade total ao produto — Zero tolerância</p>
+        <p style="font-size:12px; font-weight:300; color:var(--text-light); line-height:1.7;">O prompt gerado instrui a IA a preservar <strong style="color:var(--cream); font-weight:400;">100% das características físicas do produto</strong>: forma, cor, textura, material, auréola, coroa, ornamentos e todos os detalhes. <strong style="color:var(--cream); font-weight:400;">Apenas o cenário ao redor é gerado.</strong> Sempre anexe a foto do produto como <strong style="color:#F0C595; font-weight:400;">Image Reference</strong> na ferramenta de IA.</p>
+      </div>
+    </div>
+    <button class="btn-generate" id="btnGenerate" onclick="generatePrompt()">
+      <span>✦ &nbsp;Gerar Prompt do Criativo&nbsp; ✦</span>
+    </button>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+  <div class="loading" id="loadingBox">
+    <div class="loader-cross"></div>
+    <p class="loading-text">Elaborando seu prompt sagrado...</p>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div class="result-header">
+      <p class="result-label">Prompt gerado</p>
+      <span class="result-model-badge" id="resultModelBadge">—</span>
+    </div>
+    <div class="result-content" id="resultContent"></div>
+
+    <!-- Caixa do prompt Kling (só aparece no modelo Reels) -->
+    <div id="shortPromptBox" style="display:none; margin: 0; border-top: 1px solid var(--gold); background: rgba(200,169,110,0.08);">
+      <div style="padding: 14px 24px 8px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+          <span style="font-size:16px;">🎬</span>
+          <p style="font-size:11px; font-weight:500; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold);">Prompt Kling AI 2.5 — Otimizado (máx. 2300 caracteres)</p>
+        </div>
+        <div style="background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:var(--radius); padding:14px;">
+          <p id="shortPromptText" style="font-size:13px; font-weight:300; line-height:1.8; color:var(--cream); white-space:pre-wrap;"></p>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; margin-top:8px; margin-bottom:14px;">
+          <span style="font-size:12px;">⚠️</span>
+          <p style="font-size:11px; color:var(--text-light);">Anexe a foto do produto como <strong style="color:var(--cream);">Image Reference</strong> no Kling para preservar 100% a aparência física do produto.</p>
+        </div>
+        <div style="background:rgba(200,169,110,0.06); border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; margin-bottom:14px;">
+          <p style="font-size:11px; color:var(--text-light); line-height:1.7;"><strong style="color:var(--gold);">No Kling 2.5:</strong> Cole o prompt → anexe a foto em "Image Reference" → selecione duração (5s por cena) → gere cena por cena → una no CapCut.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn-copy" id="btnCopy" onclick="copyPrompt('full')">⊕ Copiar roteiro completo</button>
+      <button class="btn-copy" id="btnCopyShort" style="display:none; border-color:#1D9E75; color:#5DCAA5;" onclick="copyPrompt('short')">🎬 Copiar prompt Kling 2.5</button>
+      <button class="btn-new" onclick="resetResult()">↺ Gerar novo</button>
+    </div>
+
+    <!-- Botão Magnific -->
+    <div id="magnificBox" style="display:none; border-top: 1px solid var(--gold); padding: 16px 24px; background: rgba(200,169,110,0.04);">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <span style="font-size:20px;">✨</span>
+        <div>
+          <p style="font-size:12px; font-weight:500; color:var(--gold); letter-spacing:0.1em; text-transform:uppercase;">Gerar direto no Magnific</p>
+          <p style="font-size:11px; color:var(--text-light); margin-top:2px;">Envia o prompt + foto do produto para o Claude gerar via Magnific agora</p>
+        </div>
+      </div>
+
+      <div id="magnificModeBox" style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+        <button class="magn-mode active" data-mode="imagem" onclick="selectMagnificMode(this)">🖼️ Imagem estática</button>
+        <button class="magn-mode" data-mode="video" onclick="selectMagnificMode(this)">🎬 Vídeo (Seedance)</button>
+      </div>
+
+      <div id="magnificWarning" style="background:rgba(200,40,40,0.08); border:1px solid rgba(200,40,40,0.3); border-radius:var(--radius); padding:10px 14px; margin-bottom:12px; font-size:11px; color:#F09595; line-height:1.7; display:none;">
+        ⚠️ <strong>Sem foto do produto:</strong> Para preservar 100% as características do produto, faça o upload da foto no Passo II antes de gerar.
+      </div>
+
+      <button id="btnMagnific" onclick="gerarNoMagnific()" style="width:100%; padding:14px 24px; background:linear-gradient(135deg, rgba(200,169,110,0.15), rgba(200,169,110,0.05)); border:1px solid var(--gold); border-radius:var(--radius); font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:400; letter-spacing:0.12em; color:var(--gold); cursor:pointer; transition:all 0.3s; text-transform:uppercase; position:relative; overflow:hidden;">
+        <span>✨ &nbsp;Gerar no Magnific agora&nbsp; ✨</span>
+      </button>
+
+      <!-- Caixa de instrução pós-cópia -->
+      <div id="magnificCopyBox" style="display:none; margin-top:14px; background:rgba(200,169,110,0.08); border:1px solid var(--gold); border-radius:var(--radius); padding:14px 16px;">
+        <p style="font-size:12px; font-weight:500; color:var(--gold); margin-bottom:10px; letter-spacing:0.08em; text-transform:uppercase;">✓ Prompt copiado! Agora faça isso:</p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <span style="width:20px; height:20px; border-radius:50%; background:var(--gold); color:var(--dark); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">1</span>
+            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">Volte para esta conversa no <strong style="color:var(--cream);">Claude.ai</strong></p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <span style="width:20px; height:20px; border-radius:50%; background:var(--gold); color:var(--dark); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">2</span>
+            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">Cole o texto copiado no campo de mensagem</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <span style="width:20px; height:20px; border-radius:50%; background:var(--gold); color:var(--dark); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">3</span>
+            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">Envie também a <strong style="color:var(--cream);">foto do produto</strong> junto com a mensagem</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <span style="width:20px; height:20px; border-radius:50%; background:var(--gold); color:var(--dark); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">4</span>
+            <p style="font-size:12px; color:var(--text-light); line-height:1.6;">O Claude dispara no Magnific automaticamente ✨</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedModel = null;
+  let imageBase64 = null;
+  let fullPromptText = "";
+  let shortPromptText = "";
+
+  const modelNames = { hero: "Produto Hero", devocao: "Devoção & Gatilho", carrossel: "Carrossel de Prova", reels: "Reels / Vídeo" };
+
+  function selectModel(el) {
+    document.querySelectorAll(".model-card").forEach(c => c.classList.remove("selected"));
+    el.classList.add("selected");
+    selectedModel = el.dataset.model;
+  }
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      imageBase64 = ev.target.result.split(",")[1];
+      const img = document.getElementById("previewImg");
+      img.src = ev.target.result;
+      img.style.display = "block";
+      document.getElementById("uploadPlaceholder").style.display = "none";
+      document.getElementById("uploadArea").classList.add("has-image");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function buildSystemPrompt() {
+    return `Você é um especialista em marketing digital e copywriting para produtos religiosos católicos de alta qualidade. Sua tarefa é criar prompts detalhados e profissionais para a geração de criativos de anúncios.
+
+🚨 REGRA NÚMERO 1 — FIDELIDADE TOTAL AO PRODUTO — SEM EXCEÇÃO:
+Esta é a regra mais importante de todo o sistema. O produto fotografado é SAGRADO e INTOCÁVEL.
+
+PROIBIDO absolutamente:
+- Alterar qualquer detalhe visual do produto (cor, forma, textura, material, tamanho relativo, acabamento)
+- Recriar, reimaginar, redesenhar ou gerar o produto via IA
+- Modificar detalhes como auréolas, coroas, vestes, expressões, postura, ornamentos, inscrições
+- Suavizar, estilizar ou "melhorar" qualquer característica física do produto
+- Substituir o produto por uma versão "mais bonita" gerada por IA
+
+OBRIGATÓRIO em todo prompt gerado:
+- Instruir explicitamente que o produto da foto de referência deve aparecer IDÊNTICO ao original
+- Usar as palavras exatas: "preserve the product EXACTLY as shown in the reference image — NO alterations whatsoever to shape, color, texture, details, ornaments or any physical characteristic"
+- Deixar claro que SOMENTE o cenário ao redor é gerado: fundo, iluminação, atmosfera, elementos decorativos
+- Repetir a instrução de fidelidade NO INÍCIO e NO FINAL de cada prompt gerado
+- O não cumprimento desta regra gera prejuízo comercial direto à loja Vossa Vontade
+
+MOTIVO: Os criativos são anúncios de produtos reais para venda. Se o produto no anúncio for diferente do produto entregue, gera reclamações, devoluções e perda de confiança dos clientes.
+
+Os prompts devem ter:
+- Estética sacra, requintada e premium, condizente com a Loja Vossa Vontade (artigos religiosos católicos)
+- Paleta de cores coerente com o universo católico: dourado, marfim, branco, azul-celeste, bordô, preto com detalhes dourados
+- Tipografia sugerida elegante e clássica
+- Elementos visuais evocativos SOMENTE AO REDOR do produto (luz divina, luz suave, rosário, flores, tecidos nobres, etc.)
+- Copy devocional e persuasivo com gatilhos emocionais de fé, proteção, família e devoção
+- Instruções técnicas precisas sobre composição, iluminação e acabamento visual
+- Responda SEMPRE em português do Brasil
+- Estruture a resposta em seções claras e sempre inclua uma seção final chamada "INSTRUÇÃO DE FIDELIDADE AO PRODUTO" com as instruções em inglês para colar diretamente na ferramenta de IA
+- Para o modelo REELS/VÍDEO: estruture em CENAS NUMERADAS com prompt específico para cada cena`;
+  }
+
+  function buildUserPrompt(model, title, price, oldPrice, desc, saint, occasion, hasImage) {
+    const imageNote = hasImage ? "Uma foto real do produto foi fornecida — use-a como referência de cores, textura e estilo visual do produto." : "Nenhuma foto foi fornecida — crie sugestões visuais baseadas no produto descrito.";
+    const fidelidadeAviso = `
+🚨 FIDELIDADE TOTAL AO PRODUTO — REGRA INVIOLÁVEL — ZERO TOLERÂNCIA:
+O produto da foto de referência NÃO pode ser alterado em ABSOLUTAMENTE NENHUM detalhe.
+
+PROIBIDO alterar:
+- Formato, silhueta ou proporções do produto
+- Cores, brilho ou acabamento de qualquer parte
+- Texturas de materiais (resina, metal, tecido, madeira, etc.)
+- Detalhes específicos: auréolas, coroas, expressões, vestes, ornamentos, inscrições, bases
+- Qualquer elemento que faça o produto parecer diferente do original
+
+O QUE A IA DEVE GERAR: SOMENTE o cenário ao redor — fundo, iluminação, atmosfera, flores, velas, tecidos, luz. O produto é um objeto físico real inserido no cenário, nunca recriado.
+
+INSTRUÇÃO OBRIGATÓRIA EM INGLÊS para colar na ferramenta:
+"CRITICAL: Preserve the product from the reference image with 100% fidelity. Do NOT alter, recreate, reimagine or modify ANY physical characteristic — including shape, color, texture, material, ornaments, halo, crown, expression, posture, inscriptions or any detail. The product must appear IDENTICAL to the reference photo. Only generate the surrounding environment, background, lighting and atmospheric elements."`;
+
+    const modelGuides = {
+      hero: `MODELO: PRODUTO HERO
+- Fundo neutro e requintado (bege claro, marfim, branco suave ou madeira clara)
+- Produto inserido centralizado e em destaque absoluto, com sombra suave e natural
+- Apenas o ambiente ao redor do produto é estilizado — o produto em si é a foto real sem modificações
+- Badge de desconto visível no canto superior (vermelho escuro ou dourado)
+- Preço original riscado + novo preço em destaque (fonte maior, cor dourada ou bordô)
+- Logotipo da Vossa Vontade discreto em canto inferior
+- CTA direto: "Comprar agora" ou "Pegar oferta" em botão sólido
+- Iluminação clean de produto (studio light suave, sem sombras duras)
+- Sensação de produto premium de presente
+${fidelidadeAviso}`,
+      devocao: `MODELO: DEVOÇÃO & GATILHO EMOCIONAL
+- Fundo escuro e místico (preto, azul-meia-noite ou sépia profundo) com textura sutil
+- Atmosfera de devoção ao redor do produto: velas desfocadas ao fundo, luz divina suave, raios de luz dourada
+- O produto real é posicionado com reverência no cenário, sobre tecido nobre ou altar simples — sem alterações
+- Frase devocional curta e poderosa como headline principal (tipografia serifada clássica)
+- Prova social: número de clientes + estrelas (ex: "⭐⭐⭐⭐⭐ +1.200 devotos protegidos")
+- Depoimento emocional curto de cliente real (nome + cidade)
+- CTA de identidade espiritual: "Quero minha proteção", "Carregar minha fé" ou similar
+- Elementos visuais ao redor: terço, cruz, flores brancas, luz ethereal — nunca sobrepostos ao produto
+${fidelidadeAviso}`,
+      carrossel: `MODELO: CARROSSEL DE PROVA SOCIAL
+- 3 slides em sequência com identidade visual consistente
+- SLIDE 1: produto real em fundo limpo (foto preservada integralmente), nome, preço com desconto, CTA "Ver detalhes"
+- SLIDE 2: capturas de tela de avaliações reais de clientes (3-4 depoimentos), estrelas, números de avaliações
+- SLIDE 3: frete grátis, garantia de satisfação, formas de pagamento, prazo de entrega
+- Proporção recomendada: 1:1 (1080x1080px) ou 4:5 (1080x1350px)
+- Logotipo da Vossa Vontade em todos os slides
+${fidelidadeAviso}`,
+
+      reels: `MODELO: REELS / VÍDEO — PROMPT UNIVERSAL (Seedance, Veo 3, Kling AI, Runway)
+
+INSTRUÇÕES GERAIS PARA A IA DE VÍDEO:
+- A IMAGEM DO PRODUTO fornecida é referência obrigatória. O produto NÃO deve ser recriado, gerado ou alterado — ele é o objeto real que aparece nas cenas
+- Use a imagem do produto como "Image Reference" ou "Subject Reference" na ferramenta escolhida
+- A IA deve criar APENAS o ambiente, a luz, o movimento de câmera e os elementos ao redor
+- Proporção: 9:16 vertical (1080x1920px) para Reels/Stories
+- Duração total: 15 a 30 segundos
+- Estética: sacra, premium, cinematográfica, tons dourados e escuros
+
+ROTEIRO — 5 CENAS (10 segundos cada = ~50 segundos de conteúdo bruto):
+
+CENA 1 — HOOK (0 a 10 segundos):
+Prompt: Escuridão total. Um foco de luz dourada e divina surge lentamente do centro, revelando o produto sobre superfície de mármore branco ou veludo escuro. Movimento de câmera: dolly in muito lento ao longo dos 10 segundos, começando de longe e chegando perto do produto. Sem texto. Partículas de luz dourada surgem gradualmente. Música: silêncio com som de sino distante que vai crescendo.
+Objetivo: fazer o dedo parar de rolar.
+
+CENA 2 — PRODUTO EM DESTAQUE (10 a 20 segundos):
+Prompt: Close cinematográfico no produto. Câmera orbita lentamente ao redor em 180 graus durante os 10 segundos inteiros. Luz lateral dourada que revela textura e detalhes progressivamente. Partículas de luz dourada flutuando ao redor como poeira sagrada. Fundo desfocado com velas e flores brancas que aparecem gradualmente no bokeh.
+Objetivo: mostrar a beleza e qualidade do produto.
+
+CENA 3 — CONTEXTO EMOCIONAL (20 a 30 segundos):
+Prompt: Mãos femininas delicadas pegando o produto com reverência em movimento lento. Ambiente de altar doméstico: velas acesas, flores brancas, luz suave entrando pela janela. Câmera: rack focus lento do ambiente para as mãos ao longo dos 10 segundos. Sobreposição de texto na tela: frase devocional curta em tipografia serifada dourada com fade in suave.
+Texto sugerido na tela: "${saint ? '"Que ' + saint + ' te abençoe e proteja"' : '"Que a graça divina te envolva"'}"
+Objetivo: conexão emocional e espiritual.
+
+CENA 4 — PROVA SOCIAL (30 a 40 segundos):
+Prompt: Fundo escuro com textura sutil e brilho dourado suave. Texto animado aparece na tela como cards que surgem de baixo para cima com espaçamento generoso ao longo dos 10 segundos. Estilo clean e elegante com leve movimento de parallax no fundo.
+Texto na tela: "⭐⭐⭐⭐⭐  +1.200 devotos" / Depoimento curto: "Presente mais lindo que já dei. — Maria C., SP"
+Câmera: levíssimo zoom out lento ao longo dos 10 segundos.
+Objetivo: quebrar objeção e gerar confiança.
+
+CENA 5 — CTA FINAL (40 a 50 segundos):
+Prompt: Produto centralizado em fundo escuro com halo de luz dourada que pulsa suavemente. Logo da Vossa Vontade aparece no canto inferior direito com fade in suave. Câmera: dolly out lento revelando o cenário completo ao longo dos 10 segundos. Texto animado de baixo para cima no final: preço em destaque + CTA.
+Texto na tela: "R$ ${price || "XX,XX"} · Link na bio · Frete Grátis"
+Música: cresce e atinge o pico nos últimos 3 segundos.
+Objetivo: conversão direta.
+
+PARÂMETROS TÉCNICOS UNIVERSAIS:
+- Color grading: tons quentes dourados (#C8A96E) e escuros (#1A1710), baixo contraste nas sombras
+- Movimento de câmera: sempre suave, orgânico, nunca brusco
+- Iluminação: chiaroscuro sagrado — luz pontual dourada sobre fundo escuro
+- Música: instrumental sacra suave, crescendo no CTA (sugestão: ambient religioso, harpa, piano)
+- Transições: cross-dissolve suave entre cenas (0,5 segundos)
+- Logo Vossa Vontade: inserir manualmente no CapCut após geração do vídeo
+
+🚨 INSTRUÇÃO CRÍTICA DE FIDELIDADE AO PRODUTO — OBRIGATÓRIA EM TODAS AS CENAS:
+Cole esta instrução em TODAS as cenas geradas no Kling/Seedance/Veo 3:
+"CRITICAL: The product shown in the reference image must appear IDENTICAL in every scene — do NOT alter, recreate or modify any physical detail including shape, color, texture, material, halo, crown, ornaments, expression or posture. Only the surrounding environment, lighting, background and atmospheric elements should be generated by AI. The product is a real physical object inserted into the scene, never recreated."`
+    };
+
+    const isReels = model === "reels";
+    const instrucaoImagem = !isReels ? `
+INSTRUÇÃO CRÍTICA PARA O PROMPT GERADO:
+O prompt final para a ferramenta de imagem (Midjourney, Leonardo, Firefly, etc.) DEVE começar com esta frase em inglês, antes de qualquer outra instrução:
+"CRITICAL PRODUCT FIDELITY: Use the reference image product EXACTLY as-is — do NOT alter, recreate or modify ANY physical detail including shape, color, texture, material, halo, crown, ornaments, expression or posture. Only generate the surrounding scene, background, lighting and atmosphere around the product."
+
+Depois desta frase, continue com as instruções visuais do cenário ao redor.` : "";
+
+    return `Crie um prompt completo e profissional para o criativo de anúncio abaixo.
+
+${imageNote}
+
+LOJA: Vossa Vontade — Artigos Religiosos Católicos
+PRODUTO: ${title || "Produto religioso católico"}
+${price ? "PREÇO ATUAL: R$ " + price : ""}
+${oldPrice ? "PREÇO ORIGINAL: R$ " + oldPrice : ""}
+${desc ? "DETALHE ESPECIAL: " + desc : ""}
+${saint ? "DEVOÇÃO/SANTO: " + saint : ""}
+${occasion ? "OCASIÃO: " + occasion : ""}
+
+${modelGuides[model]}
+${instrucaoImagem}
+
+${isReels ? `Crie o roteiro completo cena a cena conforme o modelo acima.
+
+IMPORTANTE: Ao final do roteiro, adicione obrigatoriamente um PROMPT CURTO otimizado para ferramentas de vídeo com IA (Seedance, Veo 3, Kling, Runway, Magnific). Este prompt curto deve ter NO MÁXIMO 400 caracteres, em inglês, com os elementos visuais mais importantes em formato compacto. Envolva-o EXATAMENTE assim, sem nada antes ou depois das marcações:
+
+---PROMPT_CURTO_INICIO---
+[prompt curto aqui em inglês, máximo 400 caracteres]
+---PROMPT_CURTO_FIM---` 
+: `Crie o prompt completo com todas as seções: VISUAL, COMPOSIÇÃO, ILUMINAÇÃO, COPY DO ANÚNCIO (headline, texto principal e CTA) e ESPECIFICAÇÕES TÉCNICAS. O criativo deve ter aparência premium, sacra e altamente conversora.`}`;
+  }
+
+  async function generatePrompt() {
+    const title = document.getElementById("productTitle").value.trim();
+    const price = document.getElementById("productPrice").value.trim();
+    const oldPrice = document.getElementById("productOldPrice").value.trim();
+    const desc = document.getElementById("productDesc").value.trim();
+    const saint = document.getElementById("productSaint").value.trim();
+    const occasion = document.getElementById("productOccasion").value.trim();
+    const errorBox = document.getElementById("errorBox");
+    errorBox.classList.remove("active");
+
+    if (!selectedModel) { errorBox.textContent = "Por favor, selecione um dos três modelos de anúncio antes de continuar."; errorBox.classList.add("active"); return; }
+    if (!title) { errorBox.textContent = "Por favor, informe o nome do produto."; errorBox.classList.add("active"); return; }
+
+    document.getElementById("loadingBox").classList.add("active");
+    document.getElementById("resultBox").classList.remove("active");
+    document.getElementById("btnGenerate").disabled = true;
+
+    const messages = [];
+    if (imageBase64) {
+      messages.push({ role: "user", content: [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: imageBase64 } }, { type: "text", text: buildUserPrompt(selectedModel, title, price, oldPrice, desc, saint, occasion, true) }] });
+    } else {
+      messages.push({ role: "user", content: buildUserPrompt(selectedModel, title, price, oldPrice, desc, saint, occasion, false) });
+    }
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2500, system: buildSystemPrompt(), messages })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.content) throw new Error(data.error?.message || "Erro ao gerar o prompt.");
+      const text = data.content.find(b => b.type === "text")?.text || "";
+      fullPromptText = text;
+
+      // Para Reels: gerar prompt otimizado para Kling 2.5 em chamada separada
+      if (selectedModel === "reels") {
+        document.querySelector(".loading-text").textContent = "Gerando prompt otimizado para Kling 2.5...";
+        const klingMessages = [{
+          role: "user",
+          content: `Você é especialista em prompts para geração de vídeo com IA, especialmente Kling AI 2.5.
+
+Com base neste roteiro, crie um prompt em inglês otimizado para o Kling AI 2.5.
+
+ROTEIRO DE REFERÊNCIA:
+${text.substring(0, 1000)}
+
+PRODUTO: ${title}
+${saint ? "SAINT/DEVOTION: " + saint : ""}
+${desc ? "DETAILS: " + desc : ""}
+
+REGRAS OBRIGATÓRIAS:
+- Máximo de 2200 caracteres (deixe margem de segurança)
+- Em inglês
+- O Kling 2.5 suporta até 10 segundos por clipe — aproveite esse tempo com movimentos de câmera mais lentos e elaborados, transições suaves e elementos visuais que se desenvolvem ao longo dos 10 segundos
+- Estrutura: cena principal → movimento de câmera lento e cinematográfico (10s) → iluminação → atmosfera → elementos visuais ao redor → instrução de fidelidade ao produto
+- 🚨 FIDELIDADE AO PRODUTO — INSTRUÇÃO MAIS IMPORTANTE: O prompt deve começar E terminar com a instrução de fidelidade. Use estas palavras exatas no início: "CRITICAL PRODUCT FIDELITY RULE: The product in the reference image must appear 100% IDENTICAL throughout all scenes — do NOT alter, recreate, reimagine or modify ANY physical characteristic including shape, color, texture, material, halo, stars, crown, ornaments, expression, posture, base or inscriptions. ONLY generate the surrounding environment, lighting, background, mist, particles and atmospheric elements." E repita no final: "REMINDER: Product must be pixel-perfect identical to reference image. Zero alterations permitted."
+- Estética sacra, cinematográfica, premium, tons dourados e escuros
+- Mencionar as 5 cenas em sequência de forma compacta, cada uma com 10 segundos de duração
+- Para cada cena sugerir movimento de câmera que aproveite os 10 segundos: dolly in lento, órbita suave 180°, rack focus gradual, etc.
+- Tom devocional e emocional
+- Retorne APENAS o prompt em inglês, sem títulos externos, sem explicações, sem aspas externas`
+        }];
+        const klingResp = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 600, messages: klingMessages })
+        });
+        const klingData = await klingResp.json();
+        shortPromptText = klingData.content?.find(b => b.type === "text")?.text?.trim() || "";
+      }
+
+      renderResult(text, selectedModel);
+    } catch (err) {
+      errorBox.textContent = "Erro ao gerar o prompt: " + err.message;
+      errorBox.classList.add("active");
+    } finally {
+      document.getElementById("loadingBox").classList.remove("active");
+      document.getElementById("btnGenerate").disabled = false;
+    }
+  }
+
+  function renderResult(text, model) {
+    const content = document.getElementById("resultContent");
+    document.getElementById("resultModelBadge").textContent = modelNames[model] || model;
+    fullPromptText = text;
+
+    // Renderizar seções
+    const sections = [];
+    const sectionRegex = /\*\*([^*]+)\*\*[:\s]*([\s\S]*?)(?=\*\*[^*]+\*\*|$)/g;
+    let match;
+    let hasStructure = false;
+    while ((match = sectionRegex.exec(text)) !== null) {
+      sections.push({ title: match[1].trim(), body: match[2].trim() });
+      hasStructure = true;
+    }
+    if (hasStructure && sections.length > 0) {
+      content.innerHTML = sections.map(s => `<div class="result-section"><p class="result-section-title">${s.title}</p><p class="result-section-body">${s.body.replace(/\n/g, "<br>")}</p></div>`).join("");
+    } else {
+      content.innerHTML = `<p class="result-section-body">${text.replace(/\n/g, "<br>")}</p>`;
+    }
+
+    // Mostrar prompt curto se existir (modelo Reels)
+    const shortBox = document.getElementById("shortPromptBox");
+    const btnCopyShort = document.getElementById("btnCopyShort");
+    if (shortPromptText) {
+      document.getElementById("shortPromptText").innerHTML = shortPromptText.replace(/\n/g, "<br>");
+      shortBox.style.display = "block";
+      btnCopyShort.style.display = "inline-block";
+    } else {
+      shortBox.style.display = "none";
+      btnCopyShort.style.display = "none";
+    }
+
+    // Mostrar box do Magnific
+    document.getElementById("magnificBox").style.display = "block";
+    // Mostrar aviso de foto apenas se não tiver imagem
+    document.getElementById("magnificWarning").style.display = imageBase64 ? "none" : "block";
+    // Para reels mostrar opção de vídeo selecionada por padrão
+    if (model === "reels") {
+      document.querySelectorAll(".magn-mode").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".magn-mode")[1].classList.add("active");
+      magnificMode = "video";
+    } else {
+      document.querySelectorAll(".magn-mode").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".magn-mode")[0].classList.add("active");
+      magnificMode = "imagem";
+    }
+
+    // Resetar texto do loading
+    document.querySelector(".loading-text").textContent = "Elaborando seu prompt sagrado...";
+
+    document.getElementById("resultBox").classList.add("active");
+    document.getElementById("resultBox").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function copyPrompt(type) {
+    const btn = type === "short" ? document.getElementById("btnCopyShort") : document.getElementById("btnCopy");
+    const textToCopy = type === "short" ? shortPromptText : fullPromptText;
+    const originalText = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      btn.textContent = "✓ Copiado!";
+      btn.classList.add("copied");
+      setTimeout(() => { btn.textContent = originalText; btn.classList.remove("copied"); }, 2500);
+      return;
+    } catch(e) {}
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = textToCopy;
+      ta.style.position = "fixed"; ta.style.left = "-9999px"; ta.style.top = "-9999px";
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      if (ok) {
+        btn.textContent = "✓ Copiado!";
+        btn.classList.add("copied");
+        setTimeout(() => { btn.textContent = originalText; btn.classList.remove("copied"); }, 2500);
+      } else { btn.textContent = "Selecione manualmente"; }
+    } catch(e2) { btn.textContent = "Selecione manualmente"; }
+  }
+
+  function resetResult() {
+    document.getElementById("resultBox").classList.remove("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  let magnificMode = "imagem";
+
+  function selectMagnificMode(el) {
+    document.querySelectorAll(".magn-mode").forEach(b => b.classList.remove("active"));
+    el.classList.add("active");
+    magnificMode = el.dataset.mode;
+  }
+
+  function gerarNoMagnific() {
+    const title = document.getElementById("productTitle").value.trim();
+    const temFoto = !!imageBase64;
+    const promptParaUsar = magnificMode === "video" && shortPromptText ? shortPromptText : fullPromptText;
+    const modelLabel = modelNames[selectedModel] || selectedModel;
+    const modoLabel = magnificMode === "video" ? "vídeo (Seedance 2.0)" : "imagem estática";
+
+    const mensagem = `GERAR NO MAGNIFIC — ${modelLabel}
+PRODUTO: ${title}
+MODO: ${modoLabel}
+
+PROMPT:
+${promptParaUsar}
+
+⚠️ Use a foto do produto desta conversa como referência tipo "product" no Magnific. Fidelidade total ao produto — apenas o cenário ao redor pode ser criado pela IA.`;
+
+    const btn = document.getElementById("btnMagnific");
+    const box = document.getElementById("magnificCopyBox");
+
+    // Tenta sendPrompt (artifact nativo do Claude)
+    if (typeof sendPrompt === "function") {
+      sendPrompt(mensagem);
+      btn.querySelector("span").textContent = "✓ Enviado para o Claude!";
+      setTimeout(() => { btn.querySelector("span").textContent = "✨   Gerar no Magnific agora   ✨"; }, 3000);
+      return;
+    }
+
+    // Fallback: copiar para clipboard
+    const copiar = (texto) => {
+      return navigator.clipboard.writeText(texto).catch(() => {
+        const ta = document.createElement("textarea");
+        ta.value = texto;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      });
+    };
+
+    copiar(mensagem).then(() => {
+      // Mostrar caixa de instrução
+      box.style.display = "block";
+      btn.querySelector("span").textContent = "✓ Mensagem copiada!";
+      setTimeout(() => { btn.querySelector("span").textContent = "✨   Gerar no Magnific agora   ✨"; }, 3000);
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+</script>
+</body>
+</html>
