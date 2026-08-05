@@ -1,8 +1,5 @@
 {
   "name": "vossa-vontade-gerador",
   "version": "1.0.0",
-  "description": "Gerador de Prompts para Criativos - Vossa Vontade",
-  "engines": {
-    "node": "24.x"
-  }
+  "engines": { "node": "24.x" }
 }
