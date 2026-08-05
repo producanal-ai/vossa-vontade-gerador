@@ -560,7 +560,7 @@ IMPORTANTE: Ao final do roteiro, adicione obrigatoriamente um PROMPT CURTO otimi
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2500, system: buildSystemPrompt(), messages })
+        body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 2500, system: buildSystemPrompt(), messages })
       });
       const data = await response.json();
       if (!response.ok || !data.content) throw new Error(data.error?.message || "Erro ao gerar o prompt.");
@@ -598,7 +598,7 @@ REGRAS OBRIGATÓRIAS:
         const klingResp = await fetch("/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 600, messages: klingMessages })
+          body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 600, messages: klingMessages })
         });
         const klingData = await klingResp.json();
         shortPromptText = klingData.content?.find(b => b.type === "text")?.text?.trim() || "";
